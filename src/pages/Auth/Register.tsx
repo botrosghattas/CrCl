@@ -47,7 +47,7 @@ export default function Register() {
             isAxiosError(error) && toast.danger(error.response?.data.message)
         } finally {
             setLoading(false)
-            setTimeout((()=> nav("/login")), 3000)
+            nav("/login")
         }
     }
 
