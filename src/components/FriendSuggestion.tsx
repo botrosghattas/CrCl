@@ -52,6 +52,7 @@ export default function FriendSuggestion({
             toast.success(`You followed ${name}`);
             queryClient.invalidateQueries({ queryKey: ["friendSuggestions"] });
             queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+            queryClient.invalidateQueries({ queryKey: ["feed"] });
         },
         onError: () => toast.danger(`Failed to follow ${name}`)    
     })
