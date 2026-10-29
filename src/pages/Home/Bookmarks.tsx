@@ -1,0 +1,69 @@
+import NewPost from "@/components/NewPost";
+import PostCard from "@/components/PostCard";
+import { authCreatedContext } from "@/context/AuthContext";
+import type { axiosResponse } from "@/types/axiosResponse.types";
+import type { Post } from "@/types/post.types";
+import { Skeleton } from "@heroui/react";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { useContext } from "react";
+import { Navigate } from "react-router";
+
+async function getSavedPosts(tkn: string) {
+    const { data } = await axios.get<axiosResponse<Post[]>>(
+        "https://route-posts.routemisr.com/users/bookmarks",
+        {
+            headers: {
+                Authorization: "Bearer " + tkn,
+            },
+        },
+    );
+    return data.data.bookmarks;
+}
+
+export default function Bookmarks() {
+    const auth = useContext(authCreatedContext);
+    if (!auth) return <Navigate to="/login" />;
+    const { token } = auth;
+
+    const { data, isPending } = useQuery({
+        queryKey: ["bookmarks"],
+        queryFn: () => getSavedPosts(token!),
+    });
+
+    console.log(data)
+    return (
+        <div>
+            <NewPost />
+            {isPending ? (
+                <div className="space-y-5">
+                    <div className="w-full max-w-md space-y-3">
+                        <Skeleton className="h-4 w-full rounded" />
+                        <Skeleton className="h-4 w-5/6 rounded" />
+                        <Skeleton className="h-4 w-4/6 rounded" />
+                        <Skeleton className="h-4 w-full rounded" />
+                        <Skeleton className="h-4 w-3/6 rounded" />
+                    </div>
+                    <div className="w-full max-w-md space-y-3">
+                        <Skeleton className="h-4 w-full rounded" />
+                        <Skeleton className="h-4 w-5/6 rounded" />
+                        <Skeleton className="h-4 w-4/6 rounded" />
+                        <Skeleton className="h-4 w-full rounded" />
+                        <Skeleton className="h-4 w-3/6 rounded" />
+                    </div>
+                </div>
+            ) : (
+                <div className="space-y-5">
+                    
+                    {data!.length > 0 ? (
+                        data?.map((post) => (
+                            <PostCard {...post} key={post._id} />
+                        ))
+                    ) : (
+                        <p>You have no saved posts</p>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}
